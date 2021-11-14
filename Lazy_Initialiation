@@ -1,0 +1,69 @@
+import java.util.*;
+
+public final class Athlete {
+
+  public Athlete(Integer id){
+    //a toy implementation:
+    this.id = id;
+    this.name = "Roger Bannister";
+    //this.awards is not set here!
+  }
+
+  //..elided
+
+  /**
+   Lazy initialization is used here; this assumes that awards
+   may not always be of interest to the caller,
+   and that for some reason it is particularly expensive to
+   fetch the List of Awards.
+  */
+  public List<String> getAwards(){
+    if (this.awards == null) {
+      //the awards field has not yet been populated
+      //Here is a toy implementation
+      List<String> awards = new ArrayList<>();
+      awards.add("Gold Medal 2006");
+      awards.add("Bronze Medal 1998");
+      this.awards = awards;
+    }
+    return Collections.unmodifiableList(this.awards);
+  }
+
+  /**
+   This style applies only if the object is immutable.
+   
+   Another alternative is to calculate the hashCode once, when the 
+   object is initially constructed (again, applies only when object is 
+   immutable).
+  */
+  @Override public int hashCode(){
+    if (hashCode == 0) {
+      hashCode = Objects.hash(getSigFields());
+    }
+    return hashCode;
+  }
+  
+  @Override public boolean equals(Object aThat) {
+    if (this == aThat) return true;
+    if (!(aThat instanceof Athlete)) return false;
+    Athlete that = (Athlete)aThat;
+    for(int i = 0; i < this.getSigFields().length; ++i){
+      if (!Objects.equals(this.getSigFields()[i], that.getSigFields()[i])){
+        return false;
+      }
+    }
+    return true;    
+  }
+
+  // PRIVATE
+  private Integer id;
+  private String name;
+  private List<String> awards;
+  private int hashCode;
+  
+  private Object[] getSigFields() {
+    //self-encapusulated: awards is not referenced directly, 
+    //since it may be null:
+    return new Object[] {id, name, getAwards()};
+  }
+} 
